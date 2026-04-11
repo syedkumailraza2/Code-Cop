@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-cop-bg: #1A1614;
+  --color-cop-surface: #231F1D;
+  --color-cop-elevated: #2C2825;
+  --color-cop-border: #3D3835;
+  --color-cop-muted: #6B5E56;
+  --color-cop-text: #F5EDE8;
+  --color-cop-subtext: #A89B93;
+  --color-cop-primary: #E8772E;
+  --color-cop-primary-hover: #F08A42;
+  --color-cop-critical: #EF4444;
+  --color-cop-warning: #F59E0B;
+  --color-cop-success: #22C55E;
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+
+  --animate-scan-pulse: scan-pulse 2s ease-in-out infinite;
+  --animate-gauge-fill: gauge-fill 1s ease-out forwards;
+  --animate-fade-up: fade-up 0.5s ease-out forwards;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-glow-pulse: glow-pulse 3s ease-in-out infinite;
+
+  @keyframes scan-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @keyframes gauge-fill {
+    from { stroke-dashoffset: 283; }
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes indeterminate {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(400%); }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1A1614;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3D3835;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6B5E56;
+}
+
+/* Indeterminate progress bar */
+.progress-indeterminate {
+  animation: indeterminate 1.5s ease-in-out infinite;
+}
