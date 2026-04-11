@@ -83,3 +83,52 @@ export const getRepoSize = (dir) => {
   }
   return total;
 };
+
+const BINARY_EXTENSIONS = new Set([
+  ".png", ".jpg", ".jpeg", ".gif", ".ico", ".svg", ".webp",
+  ".woff", ".woff2", ".ttf", ".eot", ".otf",
+  ".zip", ".tar", ".gz", ".bz2", ".7z",
+  ".pdf", ".exe", ".dll", ".so", ".dylib",
+  ".mp3", ".mp4", ".avi", ".mov", ".wav",
+  ".lock",
+]);
+
+/**
+ * Recursively collect repo stats: total files, total lines of code, and repo size.
+ */
+export const getRepoStats = (dir) => {
+  let totalFiles = 0;
+  let totalLines = 0;
+  let totalSize = 0;
+
+  const walk = (currentDir) => {
+    try {
+      const entries = fs.readdirSync(currentDir);
+      for (const entry of entries) {
+        if (SKIP_DIRS.has(entry)) continue;
+        const fullPath = path.join(currentDir, entry);
+        const stat = fs.lstatSync(fullPath);
+        if (stat.isFile()) {
+          totalFiles++;
+          totalSize += stat.size;
+          const ext = path.extname(entry).toLowerCase();
+          if (!BINARY_EXTENSIONS.has(ext) && stat.size < 1_000_000) {
+            try {
+              const content = fs.readFileSync(fullPath, "utf-8");
+              totalLines += content.split("\n").length;
+            } catch {
+              // skip unreadable files
+            }
+          }
+        } else if (stat.isDirectory()) {
+          walk(fullPath);
+        }
+      }
+    } catch {
+      // ignore permission errors
+    }
+  };
+
+  walk(dir);
+  return { totalFiles, totalLines, totalSize };
+};

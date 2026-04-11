@@ -4,9 +4,9 @@ import { runLint } from "./lint.service.js";
 import { runMultiLint } from "./lintRunner.service.js";
 import { detectTechStack } from "./techStack.service.js";
 import { generateSuggestions } from "./suggestions.service.js";
-import { getRepoSize } from "../utility/spawnWithTimeout.utils.js";
+import { getRepoSize, getRepoStats } from "../utility/spawnWithTimeout.utils.js";
 
-const MAX_REPO_SIZE = 25 * 1024 * 1024; // 25MB
+const MAX_REPO_SIZE = 1000 * 1024 * 1024; // 100MB
 
 const SKIP_DIRS = new Set(["node_modules", ".git", "vendor", "build", "dist", ".next", "__pycache__", ".dart_tool"]);
 
@@ -172,6 +172,11 @@ export const evaluateProject = async (repoPath) => {
   // Generate suggestions
   const suggestions = generateSuggestions(repoPath, techStack, issues);
 
+  // Repo stats
+  console.log(`[Evaluate] Collecting repo stats...`);
+  const repoStats = getRepoStats(repoPath);
+  console.log(`[Evaluate] Stats — files: ${repoStats.totalFiles}, lines: ${repoStats.totalLines}, size: ${repoStats.totalSize}`);
+
   console.log(`[Evaluate] Final score: ${score}`);
   return {
     score,
@@ -180,5 +185,6 @@ export const evaluateProject = async (repoPath) => {
     issues,
     suggestions,
     lintResults,
+    repoStats,
   };
 };
