@@ -1,12 +1,14 @@
 import { APIResponse, EvaluationResult } from "./types";
 
 export async function evaluateRepo(
-  githubURL: string
+  githubURL: string,
+  signal?: AbortSignal
 ): Promise<EvaluationResult> {
   const res = await fetch("/api/evaluate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ githubURL }),
+    signal,
   });
 
   if (!res.ok) {

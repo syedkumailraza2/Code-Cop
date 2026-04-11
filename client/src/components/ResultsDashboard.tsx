@@ -5,6 +5,7 @@ import IssuePanel from "./IssuePanel";
 import TechStackBadges from "./TechStackBadges";
 import LintResultsTable from "./LintResultsTable";
 import SuggestionsList from "./SuggestionsList";
+import RepoStatsCard from "./RepoStatsCard";
 
 interface ResultsDashboardProps {
   result: EvaluationResult;
@@ -54,10 +55,17 @@ export default function ResultsDashboard({
         )}
       </div>
 
-      {/* Score gauge centered */}
+      {/* Score gauge + repo stats */}
       <div className="flex justify-center mb-8">
         <Card>
-          <ScoreGauge score={result.score} status={result.status} />
+          <div className="flex flex-col items-center gap-6">
+            <ScoreGauge score={result.score} status={result.status} />
+            {result.repoStats && (
+              <div className="w-full border-t border-cop-border pt-4">
+                <RepoStatsCard repoStats={result.repoStats} />
+              </div>
+            )}
+          </div>
         </Card>
       </div>
 

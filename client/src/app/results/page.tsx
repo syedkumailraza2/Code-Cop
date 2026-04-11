@@ -25,17 +25,20 @@ function ResultsContent() {
       return;
     }
 
-    let cancelled = false;
+    // Prevent duplicate calls from React Strict Mode
+    if (pageState !== "loading") return;
+
+    const controller = new AbortController();
 
     async function run() {
       try {
-        const data = await evaluateRepo(url!);
-        if (!cancelled) {
+        const data = await evaluateRepo(url!, controller.signal);
+        if (!controller.signal.aborted) {
           setResult(data);
           setPageState("results");
         }
       } catch (err) {
-        if (!cancelled) {
+        if (!controller.signal.aborted) {
           setError(
             err instanceof Error
               ? err.message
@@ -48,9 +51,9 @@ function ResultsContent() {
 
     run();
     return () => {
-      cancelled = true;
+      controller.abort();
     };
-  }, [url]);
+  }, [url, pageState]);
 
   if (pageState === "loading") {
     return <LoadingOverlay />;

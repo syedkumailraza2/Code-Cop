@@ -21,6 +21,12 @@ export interface LintResult {
   warnings: number;
 }
 
+export interface RepoStats {
+  totalFiles: number;
+  totalLines: number;
+  totalSize: number;
+}
+
 export interface EvaluationResult {
   score: number;
   status: "Clean" | "Needs Improvement" | "Risky Code";
@@ -28,6 +34,7 @@ export interface EvaluationResult {
   issues: Issues;
   suggestions: string[];
   lintResults: LintResult[];
+  repoStats: RepoStats;
 }
 
 export interface APIResponse {
