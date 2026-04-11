@@ -31,11 +31,11 @@ export default function AnalyzePage() {
         <div className="flex flex-col items-center gap-6 max-w-2xl w-full">
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-              Analyze a Repository
+              Analyze with CodeCop
             </h1>
             <p className="mt-3 text-cop-subtext text-sm sm:text-base">
-              Paste a public GitHub repository URL to get a full code quality
-              report.
+              Paste a public GitHub repository URL and let CodeCop generate a
+              full code quality report.
             </p>
           </div>
 

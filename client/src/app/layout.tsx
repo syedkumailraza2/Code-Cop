@@ -13,10 +13,65 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
+const BASE_URL = "https://codecop.kumailrazas.in";
+
 export const metadata: Metadata = {
-  title: "CodeCop | GitHub Code Quality Analyzer",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "CodeCop | GitHub Code Quality Analyzer",
+    template: "%s | CodeCop",
+  },
   description:
-    "Analyze your GitHub repositories for code quality, lint issues, and best practices.",
+    "Analyze your GitHub repositories for code quality, lint issues, and best practices. Get instant reports with scores, linting results, and actionable suggestions.",
+  keywords: [
+    "code quality",
+    "GitHub analyzer",
+    "lint analysis",
+    "code review",
+    "static analysis",
+    "ESLint",
+    "Ruff",
+    "golangci-lint",
+    "JavaScript",
+    "TypeScript",
+    "Python",
+    "Go",
+    "Dart",
+    "Flutter",
+    "code health",
+    "repository analyzer",
+  ],
+  authors: [{ name: "CodeCop" }],
+  creator: "CodeCop",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: BASE_URL,
+    siteName: "CodeCop",
+    title: "CodeCop | GitHub Code Quality Analyzer",
+    description:
+      "Paste a GitHub repo URL and get an instant quality report — lint errors, tech stack breakdown, actionable suggestions, and an overall health score.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CodeCop | GitHub Code Quality Analyzer",
+    description:
+      "Paste a GitHub repo URL and get an instant quality report — lint errors, tech stack breakdown, actionable suggestions, and an overall health score.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: BASE_URL,
+  },
 };
 
 export default function RootLayout({

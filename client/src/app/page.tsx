@@ -48,7 +48,7 @@ const FEATURES = [
   {
     title: "Code Quality Score",
     description:
-      "Get an overall health score for your repository based on best practices, structure, and maintainability.",
+      "CodeCop assigns an overall health score to your repository based on best practices, structure, and maintainability.",
     icon: (
       <svg viewBox="0 0 100 100" className="w-10 h-10">
         <circle
@@ -78,7 +78,7 @@ const FEATURES = [
   {
     title: "Lint Analysis",
     description:
-      "Automated linting across multiple languages — catch errors, warnings, and style issues instantly.",
+      "CodeCop runs automated linting across multiple languages — catch errors, warnings, and style issues instantly.",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -118,7 +118,7 @@ const FEATURES = [
   {
     title: "Actionable Suggestions",
     description:
-      "Receive targeted recommendations to improve code quality, security, and developer experience.",
+      "CodeCop delivers targeted recommendations to improve code quality, security, and developer experience.",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -147,12 +147,20 @@ export default function LandingPage() {
             <span className="text-cop-primary">Code</span>
             <span className="text-cop-text">Cop</span>
           </span>
-          <Link
-            href="/analyze"
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-cop-primary text-white hover:bg-cop-primary-hover transition-colors"
-          >
-            Get Started
-          </Link>
+          <div className="flex items-center gap-6">
+            <a
+              href="#about"
+              className="text-sm text-cop-subtext hover:text-cop-text transition-colors hidden sm:inline"
+            >
+              About
+            </a>
+            <Link
+              href="/analyze"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-cop-primary text-white hover:bg-cop-primary-hover transition-colors"
+            >
+              Get Started
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -180,9 +188,9 @@ export default function LandingPage() {
               </h1>
 
               <p className="mt-6 text-cop-subtext text-lg leading-relaxed max-w-xl mx-auto lg:mx-0">
-                Paste a GitHub repo URL and get an instant quality report — lint
-                errors, tech stack breakdown, actionable suggestions, and an
-                overall health score.
+                CodeCop lets you paste a GitHub repo URL and get an instant
+                quality report — lint errors, tech stack breakdown, actionable
+                suggestions, and an overall health score.
               </p>
 
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
@@ -306,8 +314,8 @@ export default function LandingPage() {
               <span className="text-cop-primary"> audit a repo</span>
             </h2>
             <p className="mt-4 text-cop-subtext text-lg max-w-xl mx-auto">
-              One URL. One click. A comprehensive breakdown of your
-              repository&apos;s code quality.
+              One URL. One click. CodeCop gives you a comprehensive breakdown
+              of your repository&apos;s code quality.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -352,7 +360,7 @@ export default function LandingPage() {
               {
                 step: "03",
                 title: "Get Results",
-                desc: "Review your score, issues, and suggestions.",
+                desc: "Review your CodeCop score, issues, and suggestions.",
               },
             ].map((item) => (
               <div key={item.step} className="text-center">
@@ -377,15 +385,86 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* About CodeCop */}
+      <section id="about" className="border-t border-cop-border/50 px-6 py-24">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-6">
+            About <span className="text-cop-primary">CodeCop</span>
+          </h2>
+          <div className="space-y-6 text-cop-subtext text-base sm:text-lg leading-relaxed text-center max-w-3xl mx-auto">
+            <p>
+              CodeCop is a free, open-source code quality analyzer built for
+              developers who want fast, actionable feedback on their GitHub
+              repositories. Whether you&apos;re maintaining an open-source
+              project or reviewing a codebase before contributing, CodeCop helps
+              you understand what&apos;s working and what needs attention.
+            </p>
+            <p>
+              Under the hood, CodeCop clones your repository, detects the tech
+              stack, and runs industry-standard linters — ESLint for
+              JavaScript/TypeScript, Ruff for Python, golangci-lint for Go, and
+              dart analyze for Dart/Flutter. The results are combined into a
+              single, easy-to-read report with a health score, categorized
+              issues, and prioritized suggestions.
+            </p>
+            <p>
+              CodeCop was built with the belief that every developer deserves
+              access to professional-grade code analysis — no setup, no
+              configuration, no cost. Just paste a URL and let CodeCop do the
+              rest.
+            </p>
+          </div>
+
+          {/* Quick stats */}
+          <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-6">
+            {[
+              { value: "4", label: "Languages Supported" },
+              { value: "100%", label: "Free & Open Source" },
+              { value: "< 60s", label: "Average Analysis Time" },
+              { value: "0", label: "Setup Required" },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="text-center p-4 rounded-xl bg-cop-surface border border-cop-border"
+              >
+                <p className="text-2xl sm:text-3xl font-bold text-cop-primary">
+                  {stat.value}
+                </p>
+                <p className="mt-1 text-xs sm:text-sm text-cop-muted">
+                  {stat.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="border-t border-cop-border/50 px-6 py-8">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-sm font-bold">
+      <footer className="border-t border-cop-border/50 px-6 py-10">
+        <div className="max-w-6xl mx-auto flex flex-col items-center gap-6">
+          <span className="text-lg font-bold">
             <span className="text-cop-primary">Code</span>
             <span className="text-cop-text">Cop</span>
           </span>
-          <p className="text-xs text-cop-muted">
-            Built for developers who care about code quality.
+          <nav className="flex items-center gap-6 text-sm text-cop-subtext">
+            <a
+              href="#features"
+              className="hover:text-cop-text transition-colors"
+            >
+              Features
+            </a>
+            <a href="#about" className="hover:text-cop-text transition-colors">
+              About
+            </a>
+            <Link
+              href="/analyze"
+              className="hover:text-cop-text transition-colors"
+            >
+              Analyze
+            </Link>
+          </nav>
+          <p className="text-xs text-cop-muted text-center">
+            CodeCop — Built for developers who care about code quality.
           </p>
         </div>
       </footer>

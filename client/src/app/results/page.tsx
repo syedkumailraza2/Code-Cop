@@ -91,7 +91,7 @@ function ResultsContent() {
               </svg>
             </div>
             <h1 className="text-xl font-bold text-cop-text">
-              Analysis Failed
+              CodeCop Analysis Failed
             </h1>
             <p className="text-sm text-cop-subtext">{error}</p>
             <Link
