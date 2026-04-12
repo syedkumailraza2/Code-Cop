@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { submitFeedback } from "../lib/api";
+import { submitFeedback, ApiError } from "../lib/api";
 
 interface FeedbackModalProps {
   repoUrl: string;
@@ -13,17 +13,24 @@ export default function FeedbackModal({ repoUrl, onClose }: FeedbackModalProps) 
   const [hoveredRating, setHoveredRating] = useState(0);
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (rating === 0) return;
 
     setStatus("submitting");
+    setErrorMessage("");
     try {
       await submitFeedback({ rating, message, repoUrl });
       setStatus("success");
-    } catch {
+    } catch (err) {
       setStatus("error");
+      if (err instanceof ApiError) {
+        setErrorMessage(err.message);
+      } else {
+        setErrorMessage("Something went wrong. Please try again.");
+      }
     }
   }
 
@@ -134,7 +141,7 @@ export default function FeedbackModal({ repoUrl, onClose }: FeedbackModalProps) 
 
                 {status === "error" && (
                   <p className="text-sm text-cop-critical">
-                    Something went wrong. Please try again.
+                    {errorMessage}
                   </p>
                 )}
 
