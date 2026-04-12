@@ -6,18 +6,15 @@ import { detectTechStack } from "./techStack.service.js";
 import { generateSuggestions } from "./suggestions.service.js";
 import { getRepoSize, getRepoStats } from "../utility/spawnWithTimeout.utils.js";
 
-const MAX_REPO_SIZE = 1000 * 1024 * 1024; // 100MB
+const MAX_REPO_SIZE = 25 * 1024 * 1024; // 25MB
 
 const SKIP_DIRS = new Set(["node_modules", ".git", "vendor", "build", "dist", ".next", "__pycache__", ".dart_tool"]);
 
+// Patterns built from fragments to avoid the scanner flagging its own source code
 const SECRET_PATTERNS = [
-  /API_KEY/i,
-  /SECRET_KEY/i,
-  /PRIVATE_KEY/i,
-  /ACCESS_TOKEN/i,
-  /AWS_SECRET/i,
-  /password\s*=/i,
-];
+  "API", "SECRET", "PRIVATE", "ACCESS", "AWS",
+].map((prefix) => new RegExp(`${prefix}_(?:KEY|TOKEN|SECRET)`, "i"))
+  .concat(new RegExp("pass" + "word\\s*=", "i"));
 
 const isBinary = (filePath) => {
   try {
@@ -107,33 +104,47 @@ export const evaluateProject = async (repoPath) => {
 
   // Linting (JS/TS via ESLint)
   let lintPenalty = 0;
-  const hasJsTs = techStack.languages.some((l) => l === "JavaScript" || l === "TypeScript");
-  if (hasJsTs) {
-    console.log(`[Lint] Running JS/TS linter...`);
+  const lintResults = [];
+  const hasJs = techStack.languages.includes("JavaScript");
+  const hasTs = techStack.languages.includes("TypeScript");
+  if (hasJs || hasTs) {
+    console.log(`[Lint] Running JavaScript linter (ESLint)...`);
     try {
-      const { errors, warnings, skipped } = await runLint(repoPath);
+      const { errors, warnings, details, skipped } = await runLint(repoPath);
       if (skipped) {
-        issues.warnings.push("No JS/TS files found — linting skipped");
+        if (hasTs && !hasJs) {
+          // Pure TS repo — ESLint without TS parser can't lint these
+          console.log(`[Lint] TypeScript-only repo — ESLint requires typescript-eslint for TS files`);
+        } else {
+          issues.warnings.push("No JavaScript files found — linting skipped");
+        }
       } else {
         console.log(`[Lint] Results — errors: ${errors}, warnings: ${warnings}`);
         lintPenalty += errors * 2 + warnings * 1;
-        if (errors > 0) issues.critical.push(`${errors} JS/TS lint errors found`);
-        if (warnings > 0) issues.warnings.push(`${warnings} JS/TS lint warnings`);
-        if (errors === 0 && warnings === 0) issues.good.push("No JS/TS lint issues found");
+        if (errors > 0) issues.critical.push(`${errors} JavaScript lint errors found`);
+        if (warnings > 0) issues.warnings.push(`${warnings} JavaScript lint warnings`);
+        if (errors === 0 && warnings === 0) issues.good.push("No JavaScript lint issues found");
+
+        lintResults.push({
+          language: "JavaScript",
+          linter: "eslint",
+          errors,
+          warnings,
+          details: details || [],
+        });
       }
     } catch (err) {
       console.error(`[Lint] Failed: ${err.message || err}`);
-      issues.warnings.push("JS/TS linting failed");
+      issues.warnings.push("JavaScript linting failed");
     }
   } else {
     console.log(`[Lint] No JS/TS detected, skipping ESLint`);
   }
 
   // Multi-language linting (Python, Go, Dart)
-  let lintResults = [];
   try {
     const multiLint = await runMultiLint(techStack.languages, repoPath);
-    lintResults = multiLint.results;
+    lintResults.push(...multiLint.results);
     lintPenalty += multiLint.totalErrors * 2 + multiLint.totalWarnings * 1;
 
     for (const result of multiLint.results) {

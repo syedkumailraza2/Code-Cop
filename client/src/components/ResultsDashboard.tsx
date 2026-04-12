@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { EvaluationResult } from "../lib/types";
 import ScoreGauge from "./ScoreGauge";
@@ -6,9 +9,11 @@ import TechStackBadges from "./TechStackBadges";
 import LintResultsTable from "./LintResultsTable";
 import SuggestionsList from "./SuggestionsList";
 import RepoStatsCard from "./RepoStatsCard";
+import FeedbackModal from "./FeedbackModal";
 
 interface ResultsDashboardProps {
   result: EvaluationResult;
+  repoUrl?: string;
   onReset?: (() => void) | "link";
 }
 
@@ -31,29 +36,48 @@ function Card({
 
 export default function ResultsDashboard({
   result,
+  repoUrl = "",
   onReset,
 }: ResultsDashboardProps) {
+  const [showFeedback, setShowFeedback] = useState(false);
+
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-8">
       {/* Header with reset button */}
       <div className="flex items-center justify-between mb-8 animate-fade-up">
         <h1 className="text-2xl font-bold text-cop-text">Analysis Results</h1>
-        {onReset === "link" ? (
-          <Link
-            href="/analyze"
-            className="px-4 py-2 rounded-lg text-sm font-medium border border-cop-border text-cop-subtext hover:bg-cop-elevated hover:text-cop-text transition-colors"
-          >
-            Analyze Another
-          </Link>
-        ) : (
+        <div className="flex items-center gap-3">
           <button
-            onClick={onReset}
-            className="px-4 py-2 rounded-lg text-sm font-medium border border-cop-border text-cop-subtext hover:bg-cop-elevated hover:text-cop-text transition-colors cursor-pointer"
+            onClick={() => setShowFeedback(true)}
+            className="px-4 py-2 rounded-lg text-sm font-medium border border-cop-primary/30 text-cop-primary hover:bg-cop-primary/10 transition-colors cursor-pointer"
           >
-            Analyze Another
+            Help us improve CodeCop
           </button>
-        )}
+          {onReset === "link" ? (
+            <Link
+              href="/analyze"
+              className="px-4 py-2 rounded-lg text-sm font-medium border border-cop-border text-cop-subtext hover:bg-cop-elevated hover:text-cop-text transition-colors"
+            >
+              Analyze Another
+            </Link>
+          ) : (
+            <button
+              onClick={onReset}
+              className="px-4 py-2 rounded-lg text-sm font-medium border border-cop-border text-cop-subtext hover:bg-cop-elevated hover:text-cop-text transition-colors cursor-pointer"
+            >
+              Analyze Another
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* Feedback modal */}
+      {showFeedback && (
+        <FeedbackModal
+          repoUrl={repoUrl}
+          onClose={() => setShowFeedback(false)}
+        />
+      )}
 
       {/* Score gauge + repo stats */}
       <div className="flex justify-center mb-8">

@@ -1,7 +1,16 @@
+import fs from "fs";
+import path from "path";
 import { spawnWithTimeout, isToolInstalled } from "../utility/spawnWithTimeout.utils.js";
-import { parseRuff, parseGolangciLint, parseDartAnalyze } from "../utility/linterParsers.utils.js";
+import { parseRuff, parseGolangciLint, parseDartAnalyze, parseTsc } from "../utility/linterParsers.utils.js";
 
 const LINTER_REGISTRY = {
+  TypeScript: {
+    command: "tsc",
+    args: ["--noEmit", "--pretty", "false"],
+    outputSource: "stdout",
+    parser: parseTsc,
+    requiresFile: "tsconfig.json",
+  },
   Python: {
     command: "ruff",
     args: ["check", ".", "--output-format", "json"],
@@ -22,8 +31,8 @@ const LINTER_REGISTRY = {
   },
 };
 
-// Languages handled by the existing ESLint integration
-const ESLINT_LANGUAGES = new Set(["JavaScript", "TypeScript"]);
+// JavaScript is handled by the ESLint integration in lint.service.js
+const ESLINT_LANGUAGES = new Set(["JavaScript"]);
 
 /**
  * Run linters sequentially for detected languages.
@@ -41,7 +50,14 @@ export const runMultiLint = async (languages, repoPath) => {
     const entry = LINTER_REGISTRY[language];
     if (!entry) continue;
 
-    const { command, args, parser } = entry;
+    const { command, args, parser, requiresFile } = entry;
+
+    // Check if required config file exists
+    if (requiresFile && !fs.existsSync(path.join(repoPath, requiresFile))) {
+      console.log(`[CodeCop] Skipping ${language} - ${requiresFile} not found`);
+      continue;
+    }
+
     console.log(`[CodeCop] Running ${language} linter (${command})...`);
 
     // Check if tool is installed
@@ -79,6 +95,7 @@ export const runMultiLint = async (languages, repoPath) => {
       linter: command,
       errors: parsed.errors,
       warnings: parsed.warnings,
+      details: parsed.details || [],
     });
 
     totalErrors += parsed.errors;

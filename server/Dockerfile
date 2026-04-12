@@ -16,6 +16,9 @@ RUN curl -fsSL https://storage.googleapis.com/dart-archive/channels/stable/relea
     && rm dart.zip
 ENV PATH="/opt/dart-sdk/bin:$PATH"
 
+# Install TypeScript compiler globally (for tsc --noEmit)
+RUN npm install -g typescript
+
 WORKDIR /app
 
 COPY package.json package-lock.json ./

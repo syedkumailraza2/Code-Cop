@@ -27,3 +27,19 @@ export async function evaluateRepo(
   const data: APIResponse = await res.json();
   return data.result;
 }
+
+export async function submitFeedback(data: {
+  rating: number;
+  message: string;
+  repoUrl: string;
+}): Promise<void> {
+  const res = await fetch("/api/feedback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to submit feedback");
+  }
+}

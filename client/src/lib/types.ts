@@ -14,11 +14,21 @@ export interface Issues {
   good: string[];
 }
 
+export interface LintIssue {
+  file: string;
+  line: number;
+  column: number;
+  severity: "error" | "warning";
+  message: string;
+  rule: string;
+}
+
 export interface LintResult {
   language: string;
   linter: string;
   errors: number;
   warnings: number;
+  details: LintIssue[];
 }
 
 export interface RepoStats {
