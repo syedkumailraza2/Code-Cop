@@ -10,11 +10,19 @@ const MAX_REPO_SIZE = 25 * 1024 * 1024; // 25MB
 
 const SKIP_DIRS = new Set(["node_modules", ".git", "vendor", "build", "dist", ".next", "__pycache__", ".dart_tool"]);
 
-// Patterns built from fragments to avoid the scanner flagging its own source code
-const SECRET_PATTERNS = [
-  "API", "SECRET", "PRIVATE", "ACCESS", "AWS",
-].map((prefix) => new RegExp(`${prefix}_(?:KEY|TOKEN|SECRET)`, "i"))
-  .concat(new RegExp("pass" + "word\\s*=", "i"));
+// Matches hardcoded secret assignments like: API_KEY = "value" or apiKey: "value"
+// Does NOT match references like process.env.API_KEY or import.meta.env.SECRET_KEY
+const SECRET_KEYWORDS = ["API", "SECRET", "PRIVATE", "ACCESS", "AWS"];
+const SECRET_PATTERNS = SECRET_KEYWORDS.map(
+  // key = "value" or key: "value" — but NOT process.env.KEY or import.meta.env.KEY
+  (prefix) => new RegExp(`(?<!process\\.env\\.)(?<!import\\.meta\\.env\\.)(?<!env\\()(?<!getenv\\()${prefix}_(?:KEY|TOKEN|SECRET)\\s*[:=]\\s*["'\`][^"'\`]{8,}`, "i")
+).concat(
+  // password = "actual_value" (not empty, not a variable reference)
+  new RegExp("pass" + "word\\s*[:=]\\s*[\"'`][^\"'`]{8,}", "i")
+);
+
+// Skip files that are only defining env var names, not values
+const SECRET_SKIP_EXTENSIONS = new Set([".d.ts", ".d.mts"]);
 
 const isBinary = (filePath) => {
   try {
@@ -44,6 +52,15 @@ const scanForSecrets = (dir, depth = 0, maxDepth = 4) => {
       const stat = fs.lstatSync(fullPath);
       if (stat.isFile()) {
         if (isBinary(fullPath)) continue;
+        const lower = entry.toLowerCase();
+        // Skip documentation and example files
+        if (lower === "readme.md" || lower === "readme" || lower === "readme.txt") continue;
+        if (lower.includes(".env.example") || lower.includes(".env.sample") || lower.includes("sample.env") || lower.includes("example.env")) continue;
+        // Skip .env files (config, not hardcoded in code)
+        if (lower.startsWith(".env")) continue;
+        // Skip type declaration files
+        const ext = path.extname(lower);
+        if (SECRET_SKIP_EXTENSIONS.has(ext) || lower.endsWith(".d.ts") || lower.endsWith(".d.mts")) continue;
         try {
           const content = fs.readFileSync(fullPath, "utf-8");
           for (const pattern of SECRET_PATTERNS) {
