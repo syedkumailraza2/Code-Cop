@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { EvaluationResult } from "../lib/types";
 import ScoreGauge from "./ScoreGauge";
@@ -10,6 +10,7 @@ import LintResultsTable from "./LintResultsTable";
 import SuggestionsList from "./SuggestionsList";
 import RepoStatsCard from "./RepoStatsCard";
 import FeedbackModal from "./FeedbackModal";
+import ShareButton from "./ShareButton";
 
 interface ResultsDashboardProps {
   result: EvaluationResult;
@@ -40,13 +41,20 @@ export default function ResultsDashboard({
   onReset,
 }: ResultsDashboardProps) {
   const [showFeedback, setShowFeedback] = useState(false);
+  const dashboardRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 py-8">
+    <div ref={dashboardRef} className="w-full max-w-5xl mx-auto px-4 py-8">
       {/* Header with reset button */}
-      <div className="flex items-center justify-between mb-8 animate-fade-up">
+      <div className="flex items-center justify-between mb-8 animate-fade-up relative z-50">
         <h1 className="text-2xl font-bold text-cop-text">Analysis Results</h1>
         <div className="flex items-center gap-3">
+          <ShareButton
+            score={result.score}
+            status={result.status}
+            repoUrl={repoUrl}
+            dashboardRef={dashboardRef}
+          />
           <button
             onClick={() => setShowFeedback(true)}
             className="px-4 py-2 rounded-lg text-sm font-medium border border-cop-primary/30 text-cop-primary hover:bg-cop-primary/10 transition-colors cursor-pointer"
