@@ -8,6 +8,7 @@ const evaluationSchema = new mongoose.Schema({
     fileCount: { type: Number, required: true },
     duration: { type: Number, required: true },
     status: { type: String, required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     createdAt: { type: Date, default: Date.now }
 });
 

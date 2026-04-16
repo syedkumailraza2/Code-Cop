@@ -54,3 +54,33 @@ export interface APIResponse {
 export interface APIError {
   message: string;
 }
+
+export interface GitHubUser {
+  githubId: number;
+  username: string;
+  displayName: string;
+  avatarUrl: string;
+  email: string | null;
+  createdAt: string;
+}
+
+export interface GitHubRepo {
+  name: string;
+  fullName: string;
+  private: boolean;
+  description: string | null;
+  language: string | null;
+  updatedAt: string;
+  htmlUrl: string;
+  stars: number;
+}
+
+export interface AnalysisHistoryItem {
+  _id: string;
+  repoUrl: string;
+  score: number;
+  status: "Clean" | "Needs Improvement" | "Risky Code";
+  duration: number;
+  languages: string[];
+  createdAt: string;
+}

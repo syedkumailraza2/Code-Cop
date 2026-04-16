@@ -2,6 +2,8 @@ import { cloneRepo } from '../service/cloneRepo.service.js';
 import { evaluateProject } from '../service/evaluator.service.js';
 import { deleteFolder } from '../utility/deleteFolder.utils.js';
 import EvaluationModel from '../model/evaluation.model.js';
+import User from '../model/user.model.js';
+import { decryptToken } from '../utility/crypto.utils.js';
 
 const Evaluation = async (req,res)=>{
 try {
@@ -12,8 +14,21 @@ try {
 
     console.log(`[Evaluation] Started for: ${githubURL}`);
 
+    // If authenticated, decrypt their GitHub token for private repo access
+    let accessToken = null;
+    if (req.user) {
+      try {
+        const user = await User.findById(req.user.userId);
+        if (user && user.accessToken) {
+          accessToken = decryptToken(user.accessToken, user.accessTokenIv, user.accessTokenTag);
+        }
+      } catch (err) {
+        console.warn(`[Evaluation] Could not decrypt token: ${err.message}`);
+      }
+    }
+
     console.log(`[Clone] Cloning repository...`);
-    let repoPath = await cloneRepo(githubURL);
+    let repoPath = await cloneRepo(githubURL, accessToken);
     console.log(`[Clone] Repository cloned to: ${repoPath}`);
 
     console.log(`[Evaluate] Running evaluation...`);
@@ -35,6 +50,7 @@ try {
       fileCount: result.repoStats?.totalFiles || 0,
       duration,
       status: result.status,
+      userId: req.user?.userId || null,
     }).then(() => {
       console.log(`[DB] Evaluation saved for: ${githubURL}`);
     }).catch((err) => {

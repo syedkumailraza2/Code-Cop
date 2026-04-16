@@ -3,13 +3,22 @@ env.config();
 
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import evaluatorRouter from './router/evaluation.router.js';
+import authRouter from './router/auth.router.js';
+import reposRouter from './router/repos.router.js';
 
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(cookieParser());
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  credentials: true,
+}));
+app.use(authRouter);
+app.use(reposRouter);
 app.use(evaluatorRouter);
 
 app.get('/', (req, res) => {

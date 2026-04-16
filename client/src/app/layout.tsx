@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
+import Providers from "../components/Providers";
 import "./globals.css";
 
 const inter = Inter({
@@ -99,7 +100,7 @@ export default function RootLayout({
         </Script>
       </head>
       <body className="bg-cop-bg text-cop-text font-sans antialiased min-h-screen">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

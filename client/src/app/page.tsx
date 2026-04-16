@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useAuth } from "../lib/auth-context";
 
 const SUPPORTED_LANGUAGES = [
   {
@@ -38,7 +41,7 @@ const SUPPORTED_LANGUAGES = [
     color: "#0175C2",
     icon: (
       <svg viewBox="0 0 24 24" className="w-8 h-8" fill="currentColor">
-        <path d="M4.105 4.105S9.158 1.58 11.684.316a3.079 3.079 0 011.481-.315c.766.047 1.677.788 1.677.788L24 9.948V9.89l-4.263 4.264-6.38-6.38-9.252 9.253V4.105zm15.79 15.79L24 24l-4.105-4.105-9.253-9.252 6.38-6.38 4.264 4.263V9.89L11.684 24l-7.58-4.105 15.79-15.79z" />
+        <path d="M4.105 4.105S9.158 1.58 11.684.316a3.079 3.079 0 0 1 1.481-.315c.766.047 1.677.788 1.677.788L24 9.948l-9.263 9.264-1.473 1.473L6.89 24H2.105L0 21.895v-4.79L4.105 4.106zm5.632 10.632L4.158 20.316l.696.696h3.572l5.476-5.48-4.165-4.157zm9.895-4.842l-3.632-3.632-6.168 6.337 3.84 3.84 5.96-5.96v-.585z" />
       </svg>
     ),
   },
@@ -138,6 +141,8 @@ const FEATURES = [
 ];
 
 export default function LandingPage() {
+  const { isAuthenticated, login } = useAuth();
+
   return (
     <main className="min-h-screen flex flex-col">
       {/* Navbar */}
@@ -166,12 +171,21 @@ export default function LandingPage() {
               </svg>
               <span className="hidden sm:inline">GitHub</span>
             </a>
-            <Link
-              href="/analyze"
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-cop-primary text-white hover:bg-cop-primary-hover transition-colors"
-            >
-              Get Started
-            </Link>
+            {isAuthenticated ? (
+              <Link
+                href="/dashboard"
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-cop-primary text-white hover:bg-cop-primary-hover transition-colors"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <Link
+                href="/analyze"
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-cop-primary text-white hover:bg-cop-primary-hover transition-colors"
+              >
+                Get Started
+              </Link>
+            )}
           </div>
         </div>
       </nav>
@@ -215,12 +229,25 @@ export default function LandingPage() {
                     &rarr;
                   </span>
                 </Link>
-                <a
-                  href="#features"
-                  className="px-8 py-3.5 rounded-lg font-medium border border-cop-border text-cop-subtext hover:bg-cop-elevated hover:text-cop-text transition-colors text-base"
-                >
-                  See How It Works
-                </a>
+                {!isAuthenticated && (
+                  <button
+                    onClick={login}
+                    className="flex items-center gap-2 px-8 py-3.5 rounded-lg font-medium border border-cop-border text-cop-subtext hover:bg-cop-elevated hover:text-cop-text transition-colors text-base cursor-pointer"
+                  >
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                      <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+                    </svg>
+                    Sign in with GitHub
+                  </button>
+                )}
+                {isAuthenticated && (
+                  <Link
+                    href="/dashboard"
+                    className="px-8 py-3.5 rounded-lg font-medium border border-cop-border text-cop-subtext hover:bg-cop-elevated hover:text-cop-text transition-colors text-base"
+                  >
+                    Go to Dashboard
+                  </Link>
+                )}
               </div>
             </div>
 
@@ -436,7 +463,7 @@ export default function LandingPage() {
             {[
               { value: "4", label: "Languages Supported" },
               { value: "100%", label: "Free & Open Source" },
-              { value: "< 60s", label: "Average Analysis Time" },
+              { value: "< 9.6s", label: "Average Analysis Time" },
               { value: "0", label: "Setup Required" },
             ].map((stat) => (
               <div

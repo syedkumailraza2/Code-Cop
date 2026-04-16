@@ -1,4 +1,10 @@
-import { APIResponse, EvaluationResult } from "./types";
+import {
+  APIResponse,
+  EvaluationResult,
+  GitHubUser,
+  GitHubRepo,
+  AnalysisHistoryItem,
+} from "./types";
 
 export type ErrorType =
   | "rate_limit"
@@ -39,6 +45,7 @@ export async function evaluateRepo(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ githubURL }),
       signal,
+      credentials: "include",
     });
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") {
@@ -78,6 +85,7 @@ export async function submitFeedback(data: {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
+      credentials: "include",
     });
   } catch {
     throw new ApiError(
@@ -98,4 +106,45 @@ export async function submitFeedback(data: {
     }
     throw new ApiError(message, classifyError(res.status, message), res.status);
   }
+}
+
+export async function fetchCurrentUser(): Promise<GitHubUser | null> {
+  try {
+    const res = await fetch("/api/auth/me", { credentials: "include" });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.user;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchUserRepos(
+  page: number = 1,
+  search?: string
+): Promise<{ repos: GitHubRepo[]; hasMore: boolean }> {
+  const params = new URLSearchParams({ page: String(page) });
+  if (search) params.set("search", search);
+
+  const res = await fetch(`/api/repos?${params}`, { credentials: "include" });
+  if (!res.ok) {
+    throw new ApiError("Failed to fetch repositories", "server_error", res.status);
+  }
+  return res.json();
+}
+
+export async function fetchAnalysisHistory(): Promise<AnalysisHistoryItem[]> {
+  const res = await fetch("/api/history", { credentials: "include" });
+  if (!res.ok) {
+    throw new ApiError("Failed to fetch history", "server_error", res.status);
+  }
+  const data = await res.json();
+  return data.history;
+}
+
+export async function logoutUser(): Promise<void> {
+  await fetch("/api/auth/logout", {
+    method: "POST",
+    credentials: "include",
+  });
 }
