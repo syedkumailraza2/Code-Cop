@@ -25,6 +25,10 @@ app.get('/', (req, res) => {
   res.send('Hello World');
 });
 
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Connect to MongoDB
 const MONGO_URL = process.env.MONGO_URL;
 if (MONGO_URL) {
